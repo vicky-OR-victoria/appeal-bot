@@ -1,5 +1,4 @@
 from bot import start as start_bot
-from web import start_webserver
 import threading
 import time
 
