@@ -1,12 +1,4 @@
-from bot import start as start_bot
-import threading
-import time
+from bot import run_discord_bot
 
-# Run web server on a separate thread
-threading.Thread(target=start_webserver, daemon=True).start()
-
-# Small delay
-time.sleep(1)
-
-# Start the Discord bot
-start_bot()
+if __name__ == "__main__":
+    run_discord_bot()
