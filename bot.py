@@ -55,5 +55,5 @@ async def create_appeal(username: str, ban_reason: str, appeal_text: str):
     print(f"✔ Appeal sent for {username}")
 
 
-def start_bot():
+def start():
     bot.run(DISCORD_TOKEN)
