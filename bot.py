@@ -8,7 +8,7 @@ from utils import find_ban_log_message
 
 TOKEN = os.getenv("DISCORD_BOT_TOKEN")
 
-Safely convert env vars to integers after validating they're set
+# Safely convert env vars to integers after validating they're set
 
 def to_int_env(name):
 value = os.getenv(name)
