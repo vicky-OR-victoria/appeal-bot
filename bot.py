@@ -28,10 +28,10 @@ async def on_ready():
         print(f"❗ Could not find channel with ID {channel_id}. Make sure the bot has access and the ID is correct.")
     else:
         print(f"✔ Found review channel: {channel.name} (ID: {channel.id})")
-
+        
+bot.create_appeal = create_appeal
 
 async def create_appeal(username: str, ban_reason: str, appeal_text: str):
-    """Call this when your web server receives a Roblox appeal."""
     try:
         channel_id = int(REVIEW_CHANNEL_ID)
     except (TypeError, ValueError):
