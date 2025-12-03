@@ -54,6 +54,8 @@ async def create_appeal(username: str, ban_reason: str, appeal_text: str):
     await channel.send(embed=embed)
     print(f"✔ Appeal sent for {username}")
 
+async def send_appeal(username, user_id, reason, evidence):
+    await main(username, user_id, reason, evidence)
 
 def start():
     bot.run(DISCORD_TOKEN)
