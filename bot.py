@@ -28,8 +28,7 @@ async def on_ready():
         print(f"❗ Could not find channel with ID {channel_id}. Make sure the bot has access and the ID is correct.")
     else:
         print(f"✔ Found review channel: {channel.name} (ID: {channel.id})")
-        
-bot.create_appeal = create_appeal
+
 
 async def create_appeal(username: str, ban_reason: str, appeal_text: str):
     try:
@@ -54,8 +53,13 @@ async def create_appeal(username: str, ban_reason: str, appeal_text: str):
     await channel.send(embed=embed)
     print(f"✔ Appeal sent for {username}")
 
+
+bot.create_appeal = create_appeal
+
+
 async def send_appeal(username, user_id, reason, evidence):
     await main(username, user_id, reason, evidence)
+
 
 def run_discord_bot():
     bot.run(DISCORD_TOKEN)
