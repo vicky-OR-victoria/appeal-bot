@@ -15,31 +15,19 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 @bot.event
 async def on_ready():
     print(f"Bot logged in as {bot.user}")
-    print("Review channel ID (from env):", REVIEW_CHANNEL_ID)
-
-    try:
-        channel_id = int(REVIEW_CHANNEL_ID)
-    except (TypeError, ValueError):
-        print("❗ REVIEW_CHANNEL_ID env var invalid or missing. Make sure it's just the channel ID number.")
-        return
-
-    channel = bot.get_channel(channel_id)
-    if channel is None:
-        print(f"❗ Could not find channel with ID {channel_id}. Make sure the bot has access and the ID is correct.")
-    else:
-        print(f"✔ Found review channel: {channel.name} (ID: {channel.id})")
+    print("Review channel ID:", REVIEW_CHANNEL_ID)
 
 
 async def create_appeal(username: str, ban_reason: str, appeal_text: str):
     try:
         channel_id = int(REVIEW_CHANNEL_ID)
-    except (TypeError, ValueError):
-        print("❗ REVIEW_CHANNEL_ID env var invalid or missing.")
+    except:
+        print("❗ Invalid REVIEW_CHANNEL_ID")
         return
 
     channel = bot.get_channel(channel_id)
     if channel is None:
-        print(f"❗ Invalid channel ID {channel_id} or bot doesn't have permission.")
+        print("❗ Bot cannot find review channel.")
         return
 
     embed = discord.Embed(
@@ -54,12 +42,8 @@ async def create_appeal(username: str, ban_reason: str, appeal_text: str):
     print(f"✔ Appeal sent for {username}")
 
 
-bot.create_appeal = create_appeal
-
-
-async def send_appeal(username, user_id, reason, evidence):
-    await main(username, user_id, reason, evidence)
-
-
 def run_discord_bot():
     bot.run(DISCORD_TOKEN)
+
+
+bot.create_appeal = create_appeal
