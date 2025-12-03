@@ -1,41 +1,33 @@
-from flask import Flask, request, jsonify
 import os
+import asyncio
+from flask import Flask, request, jsonify
+from bot import send_appeal
 
-app = Flask(__name__)
+app = Flask(**name**)
 
-WEBHOOK_SECRET = os.getenv("WEBHOOK_SECRET")
-BOT_INSTANCE = None  # bot injected from main
+SECRET = os.getenv("WEB_SECRET")
 
-def register_bot(bot):
-    global BOT_INSTANCE
-    BOT_INSTANCE = bot
+@app.route("/", methods=["POST"])
+def receive():
+data = request.json
 
-@app.route("/roblox/appeal", methods=["POST"])
-def roblox_appeal():
-    if BOT_INSTANCE is None:
-        return jsonify({"error": "Bot not ready"}), 500
+```
+if not data:
+    return jsonify({"error": "No JSON"}), 400
 
-    data = request.get_json()
+if data.get("secret") != SECRET:
+    return jsonify({"error": "Unauthorized"}), 401
 
-    if not data:
-        return jsonify({"error": "No JSON"}), 400
+username = data.get("username")
+user_id = data.get("userId")
+reason = data.get("reason")
+evidence = data.get("evidence")
 
-    if data.get("secret") != WEBHOOK_SECRET:
-        return jsonify({"error": "Unauthorized"}), 401
+# Run the async Discord function
+asyncio.run(send_appeal(username, user_id, reason, evidence))
 
-    username = data.get("roblox_username")
-    ban_reason = data.get("ban_reason")
-    appeal_text = data.get("appeal_text")
+return jsonify({"status": "ok"})
+```
 
-    if not username or not ban_reason or not appeal_text:
-        return jsonify({"error": "Missing fields"}), 400
-
-    # call bot function
-    BOT_INSTANCE.loop.create_task(
-        BOT_INSTANCE.create_appeal(username, ban_reason, appeal_text)
-    )
-
-    return jsonify({"status": "ok"})
-
-def start_webserver():
-    app.run(host="0.0.0.0", port=8080)
+if **name** == "**main**":
+app.run(host="0.0.0.0")
