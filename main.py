@@ -6,7 +6,7 @@ import time
 # Run web server on a separate thread
 threading.Thread(target=start_webserver, daemon=True).start()
 
-# Delay to ensure web server starts
+# Small delay
 time.sleep(1)
 
 # Start the Discord bot
