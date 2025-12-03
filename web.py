@@ -1,31 +1,41 @@
 from flask import Flask, request, jsonify
 import os
 
-def start_webserver(bot):
-    app = Flask(__name__)
-    SECRET = os.getenv("WEBHOOK_SECRET")
+app = Flask(__name__)
 
-    @app.route("/roblox/appeal", methods=["POST"])
-    def roblox_appeal():
-        data = request.get_json()
+WEBHOOK_SECRET = os.getenv("WEBHOOK_SECRET")
+BOT_INSTANCE = None  # bot injected from main
 
-        if not data:
-            return jsonify({"error": "No JSON received"}), 400
+def register_bot(bot):
+    global BOT_INSTANCE
+    BOT_INSTANCE = bot
 
-        if data.get("secret") != SECRET:
-            return jsonify({"error": "Unauthorized"}), 401
+@app.route("/roblox/appeal", methods=["POST"])
+def roblox_appeal():
+    if BOT_INSTANCE is None:
+        return jsonify({"error": "Bot not ready"}), 500
 
-        username = data.get("roblox_username")
-        ban_reason = data.get("ban_reason")
-        appeal_text = data.get("appeal_text")
+    data = request.get_json()
 
-        if not username or not ban_reason or not appeal_text:
-            return jsonify({"error": "Missing fields"}), 400
+    if not data:
+        return jsonify({"error": "No JSON"}), 400
 
-        bot.loop.create_task(
-            bot.create_appeal(username, ban_reason, appeal_text)
-        )
+    if data.get("secret") != WEBHOOK_SECRET:
+        return jsonify({"error": "Unauthorized"}), 401
 
-        return jsonify({"status": "ok"})
+    username = data.get("roblox_username")
+    ban_reason = data.get("ban_reason")
+    appeal_text = data.get("appeal_text")
 
+    if not username or not ban_reason or not appeal_text:
+        return jsonify({"error": "Missing fields"}), 400
+
+    # call bot function
+    BOT_INSTANCE.loop.create_task(
+        BOT_INSTANCE.create_appeal(username, ban_reason, appeal_text)
+    )
+
+    return jsonify({"status": "ok"})
+
+def start_webserver():
     app.run(host="0.0.0.0", port=8080)
