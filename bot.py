@@ -98,6 +98,7 @@ async def create_appeal(username: str, ban_reason: str, appeal_text: str):
     await review_channel.send(embed=embed, view=view)
     print(f"✔ Appeal sent for {username}")
 
+bot.create_appeal = create_appeal
 
 def run_discord_bot():
     bot.run(DISCORD_TOKEN)
