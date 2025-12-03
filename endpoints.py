@@ -3,7 +3,7 @@ import os
 
 app = Flask(name)
 
-SECRET = os.getenv("WEBHOOK_SECRET")
+SECRET = os.getenv("WEB_SECRET")
 
 @app.route("/roblox/appeal", methods=["POST"])
 def roblox_appeal():
