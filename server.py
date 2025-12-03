@@ -4,7 +4,7 @@ import uvicorn
 
 app = FastAPI()
 
-bot = None  # Will be injected from bot.py
+bot = None  # Injected from bot.py
 
 class AppealData(BaseModel):
     username: str
@@ -15,16 +15,18 @@ class AppealData(BaseModel):
 async def appeal_hook(data: AppealData):
     print("Received appeal:", data)
 
-    if bot and hasattr(bot, "create_appeal"):
-        await bot.create_appeal(
-            bot,
-            data.username,
-            data.ban_reason,
-            data.appeal_text
-        )
-        return {"status": "Appeal delivered to Discord"}
-    else:
+    # Ensure bot is loaded
+    if bot is None:
         return {"error": "Bot not ready"}
+
+    # Call the bot method (WITHOUT passing bot twice)
+    await bot.create_appeal(
+        data.username,
+        data.ban_reason,
+        data.appeal_text
+    )
+
+    return {"status": "Appeal delivered to Discord"}
 
 def start_webserver(started_bot):
     global bot
@@ -34,5 +36,6 @@ def start_webserver(started_bot):
     uvicorn.run(
         "server:app",
         host="0.0.0.0",
-        port=8080
+        port=8080,
+        reload=False
     )
