@@ -57,5 +57,5 @@ async def create_appeal(username: str, ban_reason: str, appeal_text: str):
 async def send_appeal(username, user_id, reason, evidence):
     await main(username, user_id, reason, evidence)
 
-def run_bot():
+def run_discord_bot():
     bot.run(DISCORD_TOKEN)
