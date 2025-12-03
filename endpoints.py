@@ -1,38 +1,33 @@
+from flask import Flask, request, jsonify
 import os
-import asyncio
-from fastapi import FastAPI, Request
-from threading import Thread
-import uvicorn
 
-WEBHOOK_SECRET = os.getenv("WEBHOOK_SECRET")
+def start_webserver(bot):
+app = Flask(name)
 
-app = FastAPI()
+SECRET = os.getenv("WEBHOOK_SECRET")
 
-bot_instance = None
+@app.route("/roblox/appeal", methods=["POST"])
+def roblox_appeal():
+    data = request.get_json()
 
+    if not data:
+        return jsonify({"error": "No JSON received"}), 400
 
-@app.post("/roblox/appeal")
-async def receive_appeal(request: Request):
-    data = await request.json()
-
-    if data.get("secret") != WEBHOOK_SECRET:
-        return {"status": "unauthorized"}
+    if data.get("secret") != SECRET:
+        return jsonify({"error": "Unauthorized"}), 401
 
     username = data.get("roblox_username")
-    ban_reason = data.get("ban_reason", "No reason provided")
-    appeal_text = data.get("appeal_text", "")
+    ban_reason = data.get("ban_reason")
+    appeal_text = data.get("appeal_text")
 
-    asyncio.create_task(bot_instance.create_appeal(bot_instance, username, ban_reason, appeal_text))
+    if not username or not ban_reason or not appeal_text:
+        return jsonify({"error": "Missing fields"}), 400
 
-    return {"status": "received"}
+    # call Discord bot function
+    bot.loop.create_task(bot.create_appeal(
+        bot, username, ban_reason, appeal_text
+    ))
 
+    return jsonify({"status": "ok"})
 
-async def start_webserver(bot):
-    global bot_instance
-    bot_instance = bot
-
-    def run():
-        uvicorn.run(app, host="0.0.0.0", port=8080)
-
-    thread = Thread(target=run)
-    thread.start()
+app.run(host="0.0.0.0", port=8080)
