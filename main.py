@@ -1,14 +1,13 @@
-import asyncio
-from bot import AppealBot
+from bot import start as start_bot
 from web import start_webserver
+import threading
+import time
 
-bot = AppealBot()
+# Run web server on a separate thread
+threading.Thread(target=start_webserver, daemon=True).start()
 
-async def main():
-    # Start Flask server in background
-    asyncio.create_task(asyncio.to_thread(start_webserver, bot))
+# Delay to ensure web server starts
+time.sleep(1)
 
-    # Start Discord bot
-    await bot.start()
-
-asyncio.run(main())
+# Start the Discord bot
+start_bot()
