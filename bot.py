@@ -1,29 +1,26 @@
 import os
 import discord
 from discord.ext import commands
+import asyncio
 
-from endpoints import start_webserver
+from server import start_webserver
 from interactions import AppealReviewView
 from utils import find_ban_log_message
 
 TOKEN = os.getenv("DISCORD_BOT_TOKEN")
 
-
-# Safely convert env vars to integers
-def to_int_env(name):
+def get_env_int(name):
     value = os.getenv(name)
     if value is None:
-        raise ValueError(f"Missing required environment variable: {name}")
+        raise ValueError(f"Missing environment variable: {name}")
     try:
         return int(value)
     except ValueError:
-        raise ValueError(f"Environment variable {name} must be an integer")
+        raise ValueError(f"Environment variable {name} must be integer")
 
-
-GUILD_ID = to_int_env("GUILD_ID")
-BANISHMENT_LOG_CHANNEL = to_int_env("BANISHMENT_LOG_CHANNEL")
-APPEAL_REVIEW_CHANNEL = to_int_env("APPEAL_REVIEW_CHANNEL")
-APPEAL_LOG_CHANNEL = to_int_env("APPEAL_LOG_CHANNEL")
+GUILD_ID = get_env_int("GUILD_ID")
+BANISHMENT_LOG_CHANNEL = get_env_int("BANISHMENT_LOG_CHANNEL")
+APPEAL_REVIEW_CHANNEL = get_env_int("APPEAL_REVIEW_CHANNEL")
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -32,31 +29,21 @@ intents.members = True
 
 bot = commands.Bot(command_prefix="!", intents=intents)
 
-
 @bot.event
 async def on_ready():
     print(f"Logged in as {bot.user}")
 
-    # Start webhook server
-    bot.loop.create_task(start_webserver(bot))
-    print("Webhook server running.")
-
+    loop = asyncio.get_event_loop()
+    loop.run_in_executor(None, start_webserver, bot)
+    print("Webhook server started.")
 
 async def create_appeal(bot, username, ban_reason, appeal_text):
     guild = bot.get_guild(GUILD_ID)
     if guild is None:
-        print("ERROR: Guild not found.")
+        print("Guild not found")
         return
 
-    ban_channel = guild.get_channel(BANISHMENT_LOG_CHANNEL)
     review_channel = guild.get_channel(APPEAL_REVIEW_CHANNEL)
-
-    if ban_channel is None or review_channel is None:
-        print("ERROR: Channel not found.")
-        return
-
-    # Search for matching ban log
-    matching_message = await find_ban_log_message(ban_channel, username)
 
     embed = discord.Embed(
         title="📨 New Ban Appeal Submitted",
@@ -66,30 +53,10 @@ async def create_appeal(bot, username, ban_reason, appeal_text):
     embed.add_field(name="Ban Reason", value=ban_reason, inline=False)
     embed.add_field(name="Appeal Text", value=appeal_text, inline=False)
 
-    if matching_message:
-        embed.add_field(
-            name="Matched Ban Log",
-            value=f"[Jump to Ban Log]({matching_message.jump_url})",
-            inline=False
-        )
-    else:
-        embed.add_field(
-            name="Matched Ban Log",
-            value="⚠ **No matching ban log found.**",
-            inline=False
-        )
-
     view = AppealReviewView(username=username)
-
     await review_channel.send(embed=embed, view=view)
 
-
-# Make function accessible from endpoints.py
 bot.create_appeal = create_appeal
 
-
 if __name__ == "__main__":
-    if not TOKEN:
-        raise ValueError("Missing DISCORD_BOT_TOKEN environment variable")
-
     bot.run(TOKEN)
