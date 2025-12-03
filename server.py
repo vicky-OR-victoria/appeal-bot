@@ -5,7 +5,7 @@ import uvicorn
 
 app = FastAPI()
 
-bot = None  # will be set by main.py
+bot = None  # Will be set by main.py
 
 
 class AppealData(BaseModel):
@@ -16,13 +16,15 @@ class AppealData(BaseModel):
 
 @app.post("/appeal")
 async def appeal_hook(data: AppealData):
+    print("Received appeal:", data)
 
     if bot is None:
         return {"error": "Bot not ready"}
 
-    loop = bot.loop  # Discord’s event loop
+    # Get Discord bot event loop
+    loop = bot.loop
 
-    # Schedule create_appeal() on Discord loop
+    # Run the Discord coroutine on the bot’s loop
     future = asyncio.run_coroutine_threadsafe(
         bot.create_appeal(
             data.username,
@@ -32,11 +34,10 @@ async def appeal_hook(data: AppealData):
         loop
     )
 
-    # Wait for result or catch errors
     try:
         future.result()
     except Exception as e:
-        print("Error delivering appeal:", e)
+        print("❗ Error delivering appeal:", e)
         return {"error": "Discord delivery failed"}
 
     return {"status": "Appeal delivered to Discord"}
@@ -45,7 +46,8 @@ async def appeal_hook(data: AppealData):
 def start_webserver(started_bot):
     global bot
     bot = started_bot
-    print("Webhook online")
+
+    print("Webhook online at /appeal")
 
     uvicorn.run(
         "server:app",
