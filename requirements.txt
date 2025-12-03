@@ -2,3 +2,4 @@ discord.py[no_voice]
 fastapi
 uvicorn
 python-dotenv
+flask
