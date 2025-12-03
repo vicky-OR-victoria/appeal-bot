@@ -1,7 +1,6 @@
 from flask import Flask, request, jsonify
 import os
 
-def start_webserver(bot):
 app = Flask(name)
 
 SECRET = os.getenv("WEBHOOK_SECRET")
