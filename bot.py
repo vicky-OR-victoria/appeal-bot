@@ -11,7 +11,14 @@ TOKEN = os.getenv("DISCORD_BOT_TOKEN")
 # Safely convert env vars to integers after validating they're set
 
 def to_int_env(name):
-value = os.getenv(name)
+def get_env_int(name):
+    value = os.getenv(name)
+    if value is None:
+        raise ValueError(f"Missing environment variable: {name}")
+    try:
+        return int(value)
+    except ValueError:
+        raise ValueError(f"Environment variable {name} must be an integer")
 if value is None:
 raise ValueError(f"Missing required environment variable: {name}")
 return int(value)
