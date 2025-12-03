@@ -3,7 +3,7 @@ import asyncio
 from flask import Flask, request, jsonify
 from bot import send_appeal
 
-app = Flask(**name**)
+app = Flask(name)
 
 SECRET = os.getenv("WEB_SECRET")
 
@@ -11,7 +11,6 @@ SECRET = os.getenv("WEB_SECRET")
 def receive():
 data = request.json
 
-```
 if not data:
     return jsonify({"error": "No JSON"}), 400
 
@@ -23,11 +22,9 @@ user_id = data.get("userId")
 reason = data.get("reason")
 evidence = data.get("evidence")
 
-# Run the async Discord function
 asyncio.run(send_appeal(username, user_id, reason, evidence))
 
 return jsonify({"status": "ok"})
-```
 
-if **name** == "**main**":
+if name == "main":
 app.run(host="0.0.0.0")
