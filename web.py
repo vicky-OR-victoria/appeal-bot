@@ -3,7 +3,6 @@ import os
 
 def start_webserver(bot):
     app = Flask(__name__)
-
     SECRET = os.getenv("WEBHOOK_SECRET")
 
     @app.route("/roblox/appeal", methods=["POST"])
@@ -23,11 +22,10 @@ def start_webserver(bot):
         if not username or not ban_reason or not appeal_text:
             return jsonify({"error": "Missing fields"}), 400
 
-        # async Discord task
         bot.loop.create_task(
             bot.create_appeal(username, ban_reason, appeal_text)
         )
 
-        return jsonify({"status": "ok"}), 200
+        return jsonify({"status": "ok"})
 
     app.run(host="0.0.0.0", port=8080)
